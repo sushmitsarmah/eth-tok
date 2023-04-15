@@ -5,6 +5,10 @@ import { ChakraProvider } from 'providers/Chakra'
 import { useIsMounted } from 'hooks/useIsMounted'
 import { Seo } from 'components/layout/Seo'
 
+import { useHuddle01 } from '@huddle01/react';
+
+const HUDDLE_PROJ_ID = "KL1r3E1yHfcrRbXsT4mcE-3mK60Yc3YR";
+
 import {
   LivepeerConfig,
   createReactClient,
@@ -12,6 +16,7 @@ import {
 } from '@livepeer/react';
 
 import '../styles/globals.css'
+import { useEffect } from 'react'
 
 const livepeerClient = createReactClient({
   provider: studioProvider({
@@ -21,6 +26,12 @@ const livepeerClient = createReactClient({
 
 export default function App({ Component, pageProps }: AppProps) {
   const isMounted = useIsMounted()
+  const { initialize, isInitialized } = useHuddle01();
+
+  useEffect(() => {
+    // its preferable to use env vars to store projectId
+    initialize(HUDDLE_PROJ_ID);
+  }, []);
 
   return (
     <LivepeerConfig client={livepeerClient}>

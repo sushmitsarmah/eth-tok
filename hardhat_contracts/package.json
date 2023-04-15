@@ -3,6 +3,7 @@
   "dependencies": {
     "@hyperlane-xyz/sdk": "^1.2.2",
     "@openzeppelin/contracts": "^4.8.3",
+    "@superfluid-finance/ethereum-contracts": "^1.5.2",
     "@uma/core": "^2.54.0"
   },
   "devDependencies": {

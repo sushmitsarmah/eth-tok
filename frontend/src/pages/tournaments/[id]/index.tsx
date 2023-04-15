@@ -1,5 +1,9 @@
 import { Player } from '@livepeer/react';
 import { useMemo, useState, useEffect } from 'react';
+import { useHuddle01 } from '@huddle01/react';
+import { useLobby, useAudio, useVideo, useRoom, usePeers } from '@huddle01/react/hooks';
+import { Video, Audio } from '@huddle01/react/components'
+
 
 const streamId = 'c65410ef-e23b-49a5-9c5b-f753721f18c2';
 
@@ -7,6 +11,20 @@ const Tournament = () => {
     const [streamInfo, setStreamInfo] = useState<any>('');
     const [qsVal, setQsVal] = useState<string>('');
     const [bets, setBets] = useState<any[]>([]);
+    const { initialize, isInitialized } = useHuddle01();
+    const { joinLobby } = useLobby();
+    const {
+        fetchAudioStream, stopAudioStream, error: micError,
+        produceAudio, stopProducingAudio
+    } = useAudio();
+
+    const {
+        fetchVideoStream, stopVideoStream, error: camError,
+        produceVideo, stopProducingVideo
+    } = useVideo();
+    const { joinRoom, leaveRoom } = useRoom();
+
+    const { peerIds } = usePeers();
 
     const getStream = async () => {
         const res = await fetch(
@@ -47,7 +65,7 @@ const Tournament = () => {
     };
 
     const answered = (qs: any, answer: string) => {
-        if(answer === 'yes') {
+        if (answer === 'yes') {
             qs.yes += 1;
         } else {
             qs.no += 1;
@@ -60,30 +78,93 @@ const Tournament = () => {
 
             <h1 className='font-bold text-3xl'>Tournament Live Stream</h1>
 
-            {streamInfo ? (
-                <div className="">
-                    {streamInfo.isActive ? (
-                        <div>
-                            <Player
-                                playbackId={`${streamInfo.playbackId}`}
-                                autoPlay={true}
-                                loop
-                                muted
-                                controls={{ autohide: 0, hotkeys: false }}
-                            />
-                            <p>Stream Status:</p>
-                            <p className="">Live Now!</p>
-                            <p> {streamInfo.name} </p>
-                        </div>
-                    ) : (
+            <div className='flex flex-row gap-4 w-full'>
+                {streamInfo ? (
+                    <div className="w-1/2">
+                        {streamInfo.isActive ? (
+                            <div>
+                                <Player
+                                    playbackId={`${streamInfo.playbackId}`}
+                                    autoPlay={true}
+                                    loop
+                                    muted
+                                    controls={{ autohide: 0, hotkeys: false }}
+                                />
+                                <p>Stream Status:</p>
+                                <p className="">Live Now!</p>
+                                <p> {streamInfo.name} </p>
+                            </div>
+                        ) : (
+                            <>
+                                <img src="" alt='Livepeer Studio Logo' width='50' height='50' />
+                                <h2> {streamInfo.name} </h2>
+                                <p>Stream Status:</p>
+                            </>
+                        )}
+                    </div>
+                ) : ''}
+            </div>
+
+            <div className='flex flex-col gap-4 w-full'>
+                {isInitialized ? 'Hello World!' : 'Please initialize'}
+                <button
+                    disabled={joinLobby.isCallable}
+                    onClick={() => joinLobby('YOUR_ROOM_ID')
+                    }>
+                    Join Lobby
+                </button>
+
+                <div className="grid grid-cols-4">
+                    {peerIds.map((peer: any) => (
                         <>
-                            <img src="" alt='Livepeer Studio Logo' width='50' height='50' />
-                            <h2> {streamInfo.name} </h2>
-                            <p>Stream Status:</p>
+                            <Video key={peer.peerId} peerId={peer.peerId} debug />
+                            <button disabled={!produceVideo.isCallable} onClick={() => produceVideo(peer.cam)}>
+                                Produce Cam
+                            </button>
                         </>
-                    )}
+                    ))}
+
+                    {peerIds.map((peer: any) => (
+                        <>
+                            <Audio key={peer.peerId} peerId={peer.peerId} debug />
+                            <button disabled={!produceAudio.isCallable} onClick={() => produceAudio(peer.mic)}>
+                                Produce Mic
+                            </button>
+                        </>
+                    ))}
+
                 </div>
-            ) : ''}
+
+                <div className='grid grid-cols-4 gap-4'>
+
+                    {/* Mic */}
+                    <button disabled={!fetchAudioStream.isCallable} onClick={fetchAudioStream}>
+                        FETCH_AUDIO_STREAM
+                    </button>
+
+                    {/* Webcam */}
+                    <button disabled={!fetchVideoStream.isCallable} onClick={fetchVideoStream}>
+                        FETCH_VIDEO_STREAM
+                    </button>
+
+                    <button disabled={!joinRoom.isCallable} onClick={joinRoom}>
+                        JOIN_ROOM
+                    </button>
+
+                    <button disabled={!leaveRoom.isCallable} onClick={leaveRoom}>
+                        LEAVE_ROOM
+                    </button>
+
+                    <button disabled={!stopProducingVideo.isCallable} onClick={stopProducingVideo}>
+                        Stop Producing Cam
+                    </button>
+
+                    <button disabled={!stopProducingAudio.isCallable} onClick={stopProducingAudio}>
+                        Stop Producing Mic
+                    </button>
+                </div>
+            </div>
+
 
             <div className='flex flex-row gap-4'>
                 <input type="text"

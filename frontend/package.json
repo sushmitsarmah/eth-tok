@@ -28,6 +28,8 @@
     "@chakra-ui/react": "2.4.4",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "@huddle01/huddle01-client": "^0.0.10",
+    "@huddle01/react": "^0.0.6",
     "@livepeer/react": "^2.4.2",
     "@next/font": "13.1.1",
     "connectkit": "^1.2.2",

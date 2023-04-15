@@ -44,7 +44,7 @@ export function usePassportScore(round?: boolean) {
     }
 
     if (API_KEY && COMMUNITY_ID && isConnected && address) {
-      getPassport()
+      // getPassport()
     }
   }, [API_KEY, COMMUNITY_ID, round, address, isConnected])
 
