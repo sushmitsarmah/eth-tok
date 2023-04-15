@@ -5,9 +5,13 @@ import "@uma/core/contracts/optimistic-oracle-v2/interfaces/OptimisticOracleInte
 import "@uma/core/contracts/common/interfaces/ExpandedIERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {ISuperfluid, ISuperToken, ISuperApp} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+import {
+    ISuperfluid, 
+    ISuperToken, 
+    ISuperApp
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
-import {SuperTokenV1Library} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
+import { SuperTokenV1Library } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
 
 error Unauthorized();
 
@@ -17,11 +21,9 @@ contract Tournament {
     uint256 private constant CHARGE_PERCENT = 4;
 
     // Address of the UMA Optimistic Oracle on the Ethereum mainnet
-    address private constant OPTIMISTIC_ORACLE_ADDRESS =
-        0x3dDB1C1281e683224B0C2D7F9c13Fe8b7Bf22eC0;
+    address private constant OPTIMISTIC_ORACLE_ADDRESS = 0x3dDB1C1281e683224B0C2D7F9c13Fe8b7Bf22eC0;
     // Address of the collateral token (e.g., DAI stablecoin)
-    address private constant COLLATERAL_TOKEN_ADDRESS =
-        0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address private constant COLLATERAL_TOKEN_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     // Custom identifier for your contract; it should be unique for each question
     bytes32 private constant IDENTIFIER = keccak256("Tournament");
     // Price request timestamp
@@ -48,82 +50,42 @@ contract Tournament {
     /// @notice CFA Library.
     using SuperTokenV1Library for ISuperToken;
 
+
     mapping(uint256 => TournamentData) public tournaments;
     mapping(uint256 => Question) public questions;
     mapping(uint256 => mapping(address => bool)) public userAnswers;
 
-    event TournamentCreated(
-        uint256 indexed tournamentId,
-        string name,
-        string tournamentType,
-        uint256 buyInAmount
-    );
-    event QuestionPosted(
-        uint256 indexed questionId,
-        uint256 indexed tournamentId,
-        string questionText
-    );
+    event TournamentCreated(uint256 indexed tournamentId, string name, string tournamentType, uint256 buyInAmount);
+    event QuestionPosted(uint256 indexed questionId, uint256 indexed tournamentId, string questionText);
     event TournamentEnded(uint256 indexed tournamentId);
 
-    function createTournament(
-        string memory _name,
-        string memory _tournamentType,
-        uint256 _buyInAmount
-    ) public payable {
+    function createTournament(string memory _name, string memory _tournamentType, uint256 _buyInAmount) public payable {
         require(msg.value == _buyInAmount, "Buy-in amount not met.");
 
         tournamentCounter++;
         uint256 newTournamentId = tournamentCounter;
-        tournaments[newTournamentId] = TournamentData(
-            _name,
-            _tournamentType,
-            _buyInAmount,
-            msg.value,
-            0,
-            false
-        );
+        tournaments[newTournamentId] = TournamentData(_name, _tournamentType, _buyInAmount, msg.value, 0, false);
 
-        emit TournamentCreated(
-            newTournamentId,
-            _name,
-            _tournamentType,
-            _buyInAmount
-        );
+        emit TournamentCreated(newTournamentId, _name, _tournamentType, _buyInAmount);
     }
 
-    function postQuestion(
-        uint256 _tournamentId,
-        string memory _questionText
-    ) public {
-        require(
-            !tournaments[_tournamentId].ended,
-            "Tournament has already ended."
-        );
+
+    function postQuestion(uint256 _tournamentId, string memory _questionText) public {
+        require(!tournaments[_tournamentId].ended, "Tournament has already ended.");
 
         questionCounter++;
         uint256 newQuestionId = questionCounter;
         tournaments[_tournamentId].questionCount++;
 
         // Request price from the Optimistic Oracle
-        OptimisticOracleInterface optimisticOracle = OptimisticOracleInterface(
-            OPTIMISTIC_ORACLE_ADDRESS
-        );
-        optimisticOracle.requestPrice(
-            IDENTIFIER,
-            TIMESTAMP,
-            getAncillaryData(_questionText),
-            IERC20(COLLATERAL_TOKEN_ADDRESS),
-            CUSTOM_LIVENESS
-        );
+        OptimisticOracleInterface optimisticOracle = OptimisticOracleInterface(OPTIMISTIC_ORACLE_ADDRESS);
+        optimisticOracle.requestPrice(IDENTIFIER, TIMESTAMP, getAncillaryData(_questionText), IERC20(COLLATERAL_TOKEN_ADDRESS), CUSTOM_LIVENESS);
 
         emit QuestionPosted(newQuestionId, _tournamentId, _questionText);
     }
 
     function answerQuestion(uint256 _questionId, bool _answer) public {
-        require(
-            !userAnswers[_questionId][msg.sender],
-            "User has already answered this question."
-        );
+        require(!userAnswers[_questionId][msg.sender], "User has already answered this question.");
         userAnswers[_questionId][msg.sender] = true;
 
         if (_answer) {
@@ -134,10 +96,7 @@ contract Tournament {
     }
 
     function endTournament(uint256 _tournamentId) public {
-        require(
-            !tournaments[_tournamentId].ended,
-            "Tournament has already ended."
-        );
+        require(!tournaments[_tournamentId].ended, "Tournament has already ended.");
         tournaments[_tournamentId].ended = true;
 
         uint256 totalPool = tournaments[_tournamentId].totalPool;
@@ -150,23 +109,16 @@ contract Tournament {
     }
 
     // Helper function to generate ancillary data from the question text
-    function getAncillaryData(
-        string memory _questionText
-    ) public pure returns (bytes memory) {
+    function getAncillaryData(string memory _questionText) public pure returns (bytes memory) {
         return abi.encodePacked(_questionText);
     }
 
     // Resolves the answer for a specific question from the Optimistic Oracle
     function resolveAnswer(uint256 _questionId) public {
-        require(
-            questions[_questionId].questionText.length > 0,
-            "Question does not exist."
-        );
+        require(questions[_questionId].questionText.length > 0, "Question does not exist.");
 
         // Get the resolved price from the Optimistic Oracle
-        OptimisticOracleInterface optimisticOracle = OptimisticOracleInterface(
-            OPTIMISTIC_ORACLE_ADDRESS
-        );
+        OptimisticOracleInterface optimisticOracle = OptimisticOracleInterface(OPTIMISTIC_ORACLE_ADDRESS);
         int256 resolvedPrice = optimisticOracle.settleAndGetPrice(
             IDENTIFIER,
             TIMESTAMP,
@@ -186,8 +138,7 @@ contract Tournament {
     /// @param token Super Token to transfer.
     /// @param amount Amount to transfer.
     function sendLumpSumToContract(ISuperToken token, uint256 amount) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.transferFrom(msg.sender, address(this), amount);
     }
@@ -196,12 +147,8 @@ contract Tournament {
     /// @dev This requires the contract to be a flowOperator for the msg sender.
     /// @param token Token to stream.
     /// @param flowRate Flow rate per second to stream.
-    function createFlowIntoContract(
-        ISuperToken token,
-        int96 flowRate
-    ) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+    function createFlowIntoContract(ISuperToken token, int96 flowRate) external {
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.createFlowFrom(msg.sender, address(this), flowRate);
     }
@@ -210,12 +157,8 @@ contract Tournament {
     /// @dev This requires the contract to be a flowOperator for the msg sender.
     /// @param token Token to stream.
     /// @param flowRate Flow rate per second to stream.
-    function updateFlowIntoContract(
-        ISuperToken token,
-        int96 flowRate
-    ) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+    function updateFlowIntoContract(ISuperToken token, int96 flowRate) external {
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.updateFlowFrom(msg.sender, address(this), flowRate);
     }
@@ -223,8 +166,7 @@ contract Tournament {
     /// @notice Delete a stream that the msg.sender has open into the contract.
     /// @param token Token to quit streaming.
     function deleteFlowIntoContract(ISuperToken token) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.deleteFlow(msg.sender, address(this));
     }
@@ -233,8 +175,7 @@ contract Tournament {
     /// @param token Token to withdraw.
     /// @param amount Amount to withdraw.
     function withdrawFunds(ISuperToken token, uint256 amount) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.transfer(msg.sender, amount);
     }
@@ -248,8 +189,7 @@ contract Tournament {
         address receiver,
         int96 flowRate
     ) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.createFlow(receiver, flowRate);
     }
@@ -263,8 +203,7 @@ contract Tournament {
         address receiver,
         int96 flowRate
     ) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.updateFlow(receiver, flowRate);
     }
@@ -272,12 +211,8 @@ contract Tournament {
     /// @notice Delete flow from contract to specified address.
     /// @param token Token to stop streaming.
     /// @param receiver Receiver of stream.
-    function deleteFlowFromContract(
-        ISuperToken token,
-        address receiver
-    ) external {
-        if (!accountList[msg.sender] && msg.sender != owner)
-            revert Unauthorized();
+    function deleteFlowFromContract(ISuperToken token, address receiver) external {
+        if (!accountList[msg.sender] && msg.sender != owner) revert Unauthorized();
 
         token.deleteFlow(address(this), receiver);
     }

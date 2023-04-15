@@ -5,8 +5,8 @@ export const SITE_NAME = 'BlitzSquad'
 export const SITE_DESCRIPTION = 'Unleash the Blitz: Play, Stream, Bet - All Sports, One Arena!'
 export const SITE_URL = 'https://nexth.vercel.app'
 
-export const THEME_INITIAL_COLOR = 'system'
-export const THEME_COLOR_SCHEME: ThemingProps['colorScheme'] = 'gray'
+export const THEME_INITIAL_COLOR = 'dark'
+export const THEME_COLOR_SCHEME: ThemingProps['colorScheme'] = 'blackAlpha'
 export const THEME_CONFIG = {
   initialColorMode: THEME_INITIAL_COLOR,
 }

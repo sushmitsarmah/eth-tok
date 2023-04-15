@@ -43,8 +43,7 @@ module.exports = {
     },
     scrollAlpha: {
       url: "https://alpha-rpc.scroll.io/l2" || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      accounts: accounts,
     },
     zkEVM: {
       url: `https://rpc.public.zkevm-test.net`,
@@ -52,13 +51,18 @@ module.exports = {
     },
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
-      accounts: [process.env.ACCOUNT_PRIVATE_KEY],
+      accounts: accounts,
       chainId: 44787
     },
     celo: {
       url: "https://forno.celo.org",
-      accounts: [process.env.ACCOUNT_PRIVATE_KEY],
+      accounts: accounts,
       chainId: 42220
+    },
+    polygon_xk: {
+      url: "https://rpc.public.zkevm-test.net",
+      chainId: 1442,
+      accounts: [process.env.PRIVATE_KEY]
     },
     polygon_mumbai: {
       url: "https://rpc-mumbai.maticvigil.com",
@@ -101,6 +105,9 @@ module.exports = {
       chiado: "your key",
       gnosis: "your key",
     },
-  }
+  },
+  paths: {
+    sources: "./contracts",
+  },
 };
 
