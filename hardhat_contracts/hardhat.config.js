@@ -1,15 +1,32 @@
-
+require('dotenv').config({ path: __dirname + '/.env' });
 require("@nomicfoundation/hardhat-toolbox");
 
 // The next line is part of the sample project, you don't need it in your
 // project. It imports a Hardhat task definition, that can be used for
 // testing the frontend.
 require("./tasks/faucet");
-let accounts = { mnemonic: "your mnemonic here", }
+require("./tasks/hyperlane");
+
+let accounts = { mnemonic: "rare trip luxury giant accident nurse winner grid fruit bright recipe alone", }
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.19",
+  solidity: "0.8.9",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.9",
+      },
+      {
+        version: "0.8.13",
+        settings: {},
+      },
+      {
+        version: "0.8.17",
+        settings: {},
+      },
+    ],
+  },
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
@@ -35,18 +52,12 @@ module.exports = {
     },
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
-        path: "m/44'/52752'/0'/0"
-      },
+      accounts: [process.env.ACCOUNT_PRIVATE_KEY],
       chainId: 44787
     },
     celo: {
       url: "https://forno.celo.org",
-      accounts: {
-        mnemonic: process.env.MNEMONIC,
-        path: "m/44'/52752'/0'/0"
-      },
+      accounts: [process.env.ACCOUNT_PRIVATE_KEY],
       chainId: 42220
     },
     polygon_mumbai: {
