@@ -80,7 +80,7 @@ const Tournament = () => {
 
             <div className='flex flex-row gap-4 w-full'>
                 {streamInfo ? (
-                    <div className="w-1/2">
+                    <div className="w-full">
                         {streamInfo.isActive ? (
                             <div>
                                 <Player
@@ -96,18 +96,26 @@ const Tournament = () => {
                             </div>
                         ) : (
                             <>
-                                <img src="" alt='Livepeer Studio Logo' width='50' height='50' />
-                                <h2> {streamInfo.name} </h2>
-                                <p>Stream Status:</p>
+                                {/* <img src="" alt='Livepeer Studio Logo' width='50' height='50' /> */}
+                                <div className='w-full h-[500px]'>
+                                    <p>Stream Status: Stream not active</p>
+                                </div>
+                                <h2>Stream Name: {streamInfo.name} </h2>
                             </>
                         )}
                     </div>
-                ) : ''}
+                ) : <div className='w-full h-[500px]'>
+                    <p>No Streams found</p>
+                </div>}
             </div>
 
+
+            <h1 className='font-bold text-3xl'>Huddle Video Chat</h1>
+
             <div className='flex flex-col gap-4 w-full'>
-                {isInitialized ? 'Hello World!' : 'Please initialize'}
+                {isInitialized ? 'Join Huddle Video Chat' : 'Please initialize'}
                 <button
+                    className='btn btn-outline'
                     disabled={joinLobby.isCallable}
                     onClick={() => joinLobby('YOUR_ROOM_ID')
                     }>
@@ -118,7 +126,9 @@ const Tournament = () => {
                     {peerIds.map((peer: any) => (
                         <>
                             <Video key={peer.peerId} peerId={peer.peerId} debug />
-                            <button disabled={!produceVideo.isCallable} onClick={() => produceVideo(peer.cam)}>
+                            <button
+                                className='btn btn-outline'
+                                disabled={!produceVideo.isCallable} onClick={() => produceVideo(peer.cam)}>
                                 Produce Cam
                             </button>
                         </>
@@ -127,7 +137,9 @@ const Tournament = () => {
                     {peerIds.map((peer: any) => (
                         <>
                             <Audio key={peer.peerId} peerId={peer.peerId} debug />
-                            <button disabled={!produceAudio.isCallable} onClick={() => produceAudio(peer.mic)}>
+                            <button
+                                className='btn btn-outline'
+                                disabled={!produceAudio.isCallable} onClick={() => produceAudio(peer.mic)}>
                                 Produce Mic
                             </button>
                         </>
@@ -138,35 +150,36 @@ const Tournament = () => {
                 <div className='grid grid-cols-4 gap-4'>
 
                     {/* Mic */}
-                    <button disabled={!fetchAudioStream.isCallable} onClick={fetchAudioStream}>
+                    <button className='btn btn-outline' disabled={!fetchAudioStream.isCallable} onClick={fetchAudioStream}>
                         FETCH_AUDIO_STREAM
                     </button>
 
                     {/* Webcam */}
-                    <button disabled={!fetchVideoStream.isCallable} onClick={fetchVideoStream}>
+                    <button className='btn btn-outline' disabled={!fetchVideoStream.isCallable} onClick={fetchVideoStream}>
                         FETCH_VIDEO_STREAM
                     </button>
 
-                    <button disabled={!joinRoom.isCallable} onClick={joinRoom}>
+                    <button className='btn btn-outline' disabled={!joinRoom.isCallable} onClick={joinRoom}>
                         JOIN_ROOM
                     </button>
 
-                    <button disabled={!leaveRoom.isCallable} onClick={leaveRoom}>
+                    <button className='btn btn-outline' disabled={!leaveRoom.isCallable} onClick={leaveRoom}>
                         LEAVE_ROOM
                     </button>
 
-                    <button disabled={!stopProducingVideo.isCallable} onClick={stopProducingVideo}>
+                    <button className='btn btn-outline' disabled={!stopProducingVideo.isCallable} onClick={stopProducingVideo}>
                         Stop Producing Cam
                     </button>
 
-                    <button disabled={!stopProducingAudio.isCallable} onClick={stopProducingAudio}>
+                    <button className='btn btn-outline' disabled={!stopProducingAudio.isCallable} onClick={stopProducingAudio}>
                         Stop Producing Mic
                     </button>
                 </div>
             </div>
 
+            <hr />
 
-            <div className='flex flex-row gap-4'>
+            <div className='flex flex-row gap-4 mt-10'>
                 <input type="text"
                     value={qsVal}
                     placeholder="Type your question"

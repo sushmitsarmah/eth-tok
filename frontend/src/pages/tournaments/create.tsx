@@ -12,6 +12,7 @@ const TournamentForm = () => {
   const [streamName, setStreamName] = useState<string>('testing');
   const [huddleRoom, setHuddleRoom] = useState<string>('');
   const [huddleMeeting, setHuddleMeeting] = useState<string>('');
+  const [huddleRoomName, setHuddleRoomName] = useState<string>('');
 
   const {
     mutate: createStream,
@@ -60,7 +61,7 @@ const TournamentForm = () => {
     const opts: any = {
       method: "POST",
       data: {
-        title: "Huddle01-Test",
+        title: huddleRoomName,
         hostWallets: ['0x29f54719E88332e70550cf8737293436E9d7b10b']
       },
       headers: {
@@ -78,8 +79,19 @@ const TournamentForm = () => {
     setHuddleMeeting(meetingLink);
   };
 
+const createTournament = (e: any) => {
+  e.preventDefault();
+  const obj = {
+    name,
+    type: tournamentType,
+    buyInAmount
+  };
+  console.log(obj);
+  alert(`tournament ${name} of type ${tournamentType} with buy in amount of ${buyInAmount} created!!`);
+};
+
 return (
-  <div>
+  <div className='flex flex-col gap-4'>
     {/* {!active && (
         <button onClick={handleConnect}>
           Connect Wallet
@@ -110,32 +122,43 @@ return (
       </div>
     </div>
 
-    <div>
+    <div className='flex flex-row gap-4'>
+      <input
+        className="input w-full max-w-xs"
+        type="text"
+        placeholder="Huddle Room name"
+        onChange={(e) => setHuddleRoomName(e.target.value)}
+      />
       <button className='btn btn-primary' onClick={createHuddleRoom}>Create Huddle Room</button>
     </div>
 
-    <form onSubmit={handleSubmit}>
-      <div>
+    <hr />
+
+    <form onSubmit={handleSubmit} className='flex flex-col gap-4 w-3/4'>
+      <div className='flex flex-row gap-4 justify-between'>
         <label htmlFor="name">Tournament Name:</label>
         <input
+          className="input w-full max-w-xs"
           id="name"
           type="text"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
       </div>
-      <div>
+      <div className='flex flex-row gap-4 justify-between'>
         <label htmlFor="type">Tournament Type:</label>
         <input
+          className="input w-full max-w-xs"
           id="type"
           type="text"
           value={tournamentType}
           onChange={(event) => setTournamentType(event.target.value)}
         />
       </div>
-      <div>
+      <div className='flex flex-row gap-4 justify-between'>
         <label htmlFor="buyIn">Buy-in Amount (in ETH):</label>
         <input
+          className="input w-full max-w-xs"
           id="buyIn"
           type="text"
           value={buyInAmount}
@@ -143,7 +166,7 @@ return (
         />
       </div>
 
-      <button type="submit">
+      <button type="submit" className='btn btn-accent' onClick={createTournament}>
         Create Tournament
       </button>
     </form>

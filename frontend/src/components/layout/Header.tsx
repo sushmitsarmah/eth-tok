@@ -5,6 +5,7 @@ import { LinkComponent } from './LinkComponent'
 import { ThemeSwitcher } from './ThemeSwitcher'
 import { ConnectKitButton } from 'connectkit'
 import { PassportScore } from './PassportScore'
+import Link from 'next/link'
 
 interface Props {
   className?: string
@@ -24,6 +25,10 @@ export function Header(props: Props) {
       <Spacer />
 
       <Flex alignItems="center" gap={4}>
+        <Link className='btn btn-outline' href="/tournaments/create">Create Tournament</Link>
+        <Link className='btn btn-outline' href="/tournaments">Tournaments</Link>
+        <Link className='btn btn-outline' href="/games">Games</Link>
+        <Link className='btn btn-secondary' href="/swaptokens">Swap Tokens OneInch</Link>
         <PassportScore />
         <ConnectKitButton />
         <ThemeSwitcher />
